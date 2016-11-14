@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+   	http://www.springframework.org/schema/beans/spring-beans.xsd   
+   	http://www.springframework.org/schema/aop 
+   	http://www.springframework.org/schema/aop/spring-aop-3.0.xsd   
+   	http://www.springframework.org/schema/tx 
+   	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd  
+   	http://www.springframework.org/schema/mvc 
+   	http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd   
+   	http://www.springframework.org/schema/context 
+   	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+   	">
+	<!-- 启用spring mvc 注解 -->
+	<mvc:annotation-driven />
+	
+	<context:annotation-config></context:annotation-config>
+	<!-- 自动扫描 -->
+	<context:component-scan base-package="com.sxx.*" />
+
+	<!-- 
+	
+	dataSource 有三种方式： 
+	1、通过 org.springframework.jdbc.datasource.DriverManagerDataSource 
+	注：此种方法是有一个链接就创建一个connection，非连接池 
+	2、通过 org.apache.commons.dbcp.BasicDataSource 
+	注：此种方法是采用连接池链接
+	3、通过 org.springframework.jndi.JndiObjectFactoryBean 
+	注：此种方法采用JNDI链接方式
+	
+	 -->
+	<!-- 数据源 -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://127.0.0.1:3306/test_db" />
+		<property name="username" value="root" />
+		<property name="password" value="root" />
+	</bean>
+	
+	<!-- mybatis SqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation"
+			value="classpath:com/sxx/resource/mybatis-config.xml" />
+	</bean>
+
+	<!-- 
+	<bean id="userMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+		<property name="mapperInterface" value="com.sxx.dao.UserMapper"></property>
+	</bean>
+ -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+		<property name="basePackage" value="com.sxx.dao" />
+	</bean>
+
+	<!-- 完成请求和注解POJO的映射 -->
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
+	<!-- 对转向页面的路径解析。prefix：前缀， suffix：后缀 -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		p:prefix="/WEB-INF/jsp/" p:suffix=".jsp" />
+
+</beans>
